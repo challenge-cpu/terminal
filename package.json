@@ -1,0 +1,12 @@
+{
+    "name": "terminal-ctf",
+    "version": "1.0.0",
+    "description": "Terminal-based CTF challenge",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2"
+    }
+  }

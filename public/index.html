@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Terminal</title>
+  <link href="https://fonts.cdnfonts.com/css/sofia-pro" rel="stylesheet">
+  <style>
+    :root {
+      --theme-color: #1c2526;
+      --text-color: #e0e0e0;
+      --accent-color: #00cc99;
+      --secondary-bg: #121212;
+    }
+    :not(i) {
+      font-family: 'Sofia Pro', sans-serif !important;
+    }
+    body {
+      background-color: var(--secondary-bg);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    #terminal {
+      width: 80%;
+      max-width: 700px;
+      height: 400px;
+      background-color: var(--theme-color);
+      color: var(--text-color);
+      border: 1px solid var(--accent-color);
+      padding: 10px;
+      overflow-y: auto;
+      box-shadow: 0 0 5px var(--accent-color);
+      position: relative;
+    }
+    .output {
+      margin: 5px 0;
+      word-wrap: break-word;
+    }
+    .prompt-text {
+      color: var(--accent-color);
+    }
+    #input-line {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+    }
+    #prompt {
+      color: var(--accent-color);
+      white-space: nowrap;
+    }
+    #cmd-input {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-family: 'Sofia Pro', sans-serif;
+      outline: none;
+      flex-grow: 1;
+      caret-color: transparent;
+      position: relative;
+    }
+    #cmd-input:focus::after {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background-color: var(--accent-color);
+      animation: blink 0.8s step-end infinite;
+      vertical-align: middle;
+      margin-left: 2px;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    #cmd-input::selection {
+      background: var(--accent-color);
+      color: var(--secondary-bg);
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal">
+    <div class="output">Last login: Fri Apr 25 14:32:01 2025 from 192.168.1.10</div>
+    <div class="output">Unsecured server detected. Proceed with caution.</div>
+    <div id="input-line">
+      <span id="prompt">user@server:/home$ </span>
+      <input type="text" id="cmd-input" autocomplete="off">
+    </div>
+  </div>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const cmdInput = document.getElementById('cmd-input');
+    const prompt = document.getElementById('prompt');
+    const sessionId = Math.random().toString(36).substring(2); // Unique session ID
+
+    // Add output
+    function addOutput(text, isPrompt = false) {
+      const div = document.createElement('div');
+      div.className = 'output';
+      if (isPrompt) {
+        const promptSpan = document.createElement('span');
+        promptSpan.className = 'prompt-text';
+        promptSpan.textContent = prompt.textContent;
+        div.appendChild(promptSpan);
+        div.appendChild(document.createTextNode(text));
+      } else {
+        div.textContent = text;
+      }
+      terminal.insertBefore(div, document.getElementById('input-line'));
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    // Send command to server
+    async function sendCommand(command) {
+      const response = await fetch('/api/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, command })
+      });
+      const data = await response.json();
+      prompt.textContent = `user@server:${data.currentPath}$ `;
+      data.output.forEach(line => addOutput(line));
+    }
+
+    // Handle input
+    cmdInput.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        const command = cmdInput.value.trim();
+        if (command) {
+          addOutput(command, true);
+          await sendCommand(command);
+        }
+        cmdInput.value = '';
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    });
+
+    cmdInput.focus();
+    window.addEventListener('click', () => cmdInput.focus());
+  </script>
+</body>
+</html>
