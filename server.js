@@ -8,7 +8,7 @@ app.use(express.static('public')); // Serve static files (e.g., index.html)
 // Simulated file system
 const fileSystem = {
   '/home': { dirs: ['logs', 'user'], files: { 'readme.txt': 'System status: Vulnerable. Check logs or user directories for admin traces.' } },
-  '/home/logs': { dirs: [], files: { 'access.log': '2025-04-25 14:30:01 admin login from 192.168.1.10\n2025-04-25 14:31:22 admin created key in /home/user', 'flag.txt': 'PeshwasCTF{y0u_g0t_e@t}' } },
+  '/home/logs': { dirs: [], files: { 'access.log': '2025-04-25 14:30:01 admin login from 192.168.1.10\n2025-04-25 14:31:22 admin created key in /home/user', 'flag.txt': 'PeshwasCTF{f@ke_fl4g}' } },
   '/home/user': { dirs: ['docs'], files: { 'note.txt': 'Reminder: Key is "unlock123". Sensitive data moved to docs/' } },
   '/home/user/docs': { dirs: [], files: { 'decoy.txt': 'Dead end. No flags here.', 'secret.txt': 'Access restricted. Authentication required.' } }
 };
